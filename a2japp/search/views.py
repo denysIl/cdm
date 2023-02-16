@@ -20,10 +20,19 @@ class ArticlesViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all().order_by('id')
     serializer_class = ArticleSerializer
 
+# API request for the insight results page. Returns relevant insights according to the prompt semantic similarity and filters. 
+# Version 1 - txtai search 
+# Details on specific values and expected request types:
+#   - Paraphrased: 0 is for direct quote, 1 for paraphrased, 2 for any
+#   - Year: two numbers separated by - (e.g. /1999-2021/)
+#   - Tags: multiple tags are separated by -, if tags consist of multiple words separate them with + (e.g. /family+issues-housing/ for "family issues" and "housing" filters combined)
+#   - Prompt: prompt is passed with all spaces replaced by -
+# Ideas for subsequent versions:
+#   - Using ElasticSearch
+#   - Combining existing search engine with KeyBert keyword extractor
+# TODO:
+#   - Limit number of results dynamically according to the similarity values (more data is needed for testing and picking the threshold)
 def search_and_filter(request, paraphrased, year_start, year_end, tags, prompt):
-    #relevant_objects = Insight.objects.filter(Q(keywords__icontains=prompt))
-
-
     prompt = prompt.replace("-", " ")
     print("Prompt: ", prompt)
 
