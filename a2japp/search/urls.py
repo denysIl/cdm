@@ -10,5 +10,6 @@ router.register(r'articles', views.ArticlesViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('<int:paraphrased>/<int:year_start>-<int:year_end>/<slug:tags>/<slug:prompt>/', views.search_and_filter),
+    path('article_details/<int:article_id>/', views.article_details),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     ]

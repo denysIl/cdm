@@ -94,3 +94,14 @@ def search_and_filter(request, paraphrased, year_start, year_end, tags, prompt):
     serializer = InsightSerializer(relevant_objects, many=True)
 
     return JsonResponse(serializer.data, safe=False)
+
+def article_details(request, article_id):
+
+    article = Article.objects.all().filter(id=article_id)[0]
+    article_serializer = ArticleSerializer(article)
+
+    insights = Insight.objects.all().filter(source=article_id)
+    insights_serializer = InsightSerializer(insights, many=True)
+
+    return JsonResponse({'article': article_serializer.data, 'insights': insights_serializer.data}, safe=False)
+    
