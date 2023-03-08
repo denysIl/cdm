@@ -8,7 +8,7 @@ from django.db.models import Q
 
 from rest_framework import viewsets
 
-from txtai.embeddings import Embeddings
+#from txtai.embeddings import Embeddings
 
 # Create your views here.
 
@@ -26,33 +26,44 @@ class ArticlesViewSet(viewsets.ModelViewSet):
 #   - Paraphrased: 0 is for direct quote, 1 for paraphrased, 2 for any
 #   - Year: two numbers separated by - (e.g. /1999-2021/)
 #   - Tags: multiple tags are separated by -, if tags consist of multiple words separate them with + (e.g. /family+issues-housing/ for "family issues" and "housing" filters combined)
-#   - Prompt: prompt is passed with all spaces replaced by -
+#   - Prompt: prompt. is passed with all spaces replaced by -
 # Ideas for subsequent versions:
 #   - Using ElasticSearch
 #   - Combining existing search engine with KeyBert keyword extractor
 # TODO:
 #   - Limit number of results dynamically according to the similarity values (more data is needed for testing and picking the threshold)
+
 def search_and_filter(request, paraphrased, year_start, year_end, tags, prompt):
-    prompt = prompt.replace("-", " ")
+    #prompt = prompt.replace("-", " ")
+    prompt = prompt.split('-')
     print("Prompt: ", prompt)
 
     tags = tags.replace("+", " ")
     tags = tags.split("-")
 
-
     relevant_objects = []
     relevant_ids = []
-    embeddings = Embeddings()
+    #embeddings = Embeddings()
 
-    embeddings.load("./search/insights_index/")
+    #embeddings.load("./search/insights_index/")
     
-    results = embeddings.search(prompt, 1000)
+    #results = embeddings.search(prompt, 1000)
+
+    query = Q()
+
+    for q in prompt:
+        query &= Q(text__contains=q) 
+
+    results = Insight.objects.filter(query)
+
+    print(results)
+    print(results[0])
 
     if paraphrased == 0 or paraphrased == 1:
         for r in results:
             valid = 1
 
-            current_insight = Insight.objects.all().filter(id=r[0]).values()
+            current_insight = Insight.objects.all().filter(id=r.id).values()
             
             if current_insight[0]['paraphrased'] != paraphrased:
                 valid = 0
@@ -67,11 +78,11 @@ def search_and_filter(request, paraphrased, year_start, year_end, tags, prompt):
                         valid = 0
 
                 if valid == 1:
-                    relevant_ids.append(r[0])
+                    relevant_ids.append(r.id)
     else:
         for r in results:
             valid = 1
-            current_insight = Insight.objects.all().filter(id=r[0]).values()
+            current_insight = Insight.objects.all().filter(id=r.id).values()
             print("Current insight: ", current_insight[0])
             print("Looking for the source: ", int(current_insight[0]['source']))
             parent_article = Article.objects.all().filter(id=int(current_insight[0]['source'])).values()
@@ -82,7 +93,7 @@ def search_and_filter(request, paraphrased, year_start, year_end, tags, prompt):
                         valid = 0
 
                 if valid == 1:
-                    relevant_ids.append(r[0])
+                    relevant_ids.append(r.id)
 
 
     

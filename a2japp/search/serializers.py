@@ -4,9 +4,9 @@ from .models import Article, Insight
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
-        fields = ('id', 'title', 'authors', 'year', 'citation', 'keywords', 'tags', 'abstract', 'ai_abstract')
+        fields = ('id', 'title', 'authors', 'year', 'citation', 'tags', 'abstract', 'ai_abstract')
 
 class InsightSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Insight
-        fields = ('id', 'text', 'source', 'keywords', 'paraphrased', 'location')
+        fields = ('id', 'text', 'source', 'paraphrased', 'location')

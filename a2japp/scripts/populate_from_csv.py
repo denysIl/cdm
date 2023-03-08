@@ -20,43 +20,46 @@ class UnicodeReader:
         return self
 
 def run():
-    articles_path = "../articles.csv"
-    insights_path = "../insights.csv"
-    with open(articles_path, encoding="utf-8-sig") as f:
+    data_path = "../exported.csv"
+    data_path_unique = "../exported_unique_source.csv"
+    #text,paraphrased,id,authors,title,source,abstract,year,tags,Number (from Linked Issues)
+    with open(data_path, encoding="utf-8-sig") as f:
             reader = csv.reader(f)
 
             Article.objects.all().delete()
-
-            for row in reader:
-                _, created = Article.objects.get_or_create(
-                    id=row[0],
-                    title=row[1],
-                    authors=row[2],
-                    year=row[3],
-                    citation=row[4],
-                    keywords=row[5],
-                    tags=row[6],
-                    abstract=row[7],
-                    ai_abstract=row[8],
-                    )
+            added = []
+            for i, row in enumerate(reader):
+                if row[5] not in added:
+                    added.append(row[5])
+                    _, created = Article.objects.get_or_create(
+                        id=row[5],
+                        title=row[4],
+                        authors=row[3],
+                        year=row[7],
+                        citation='',
+                        tags=row[8],
+                        abstract=row[6],
+                        ai_abstract='',
+                        )
+                    print(row[5])
                 # creates a tuple of the new object or
                 # current object and a boolean of if it was created
 
 
-    with open(insights_path, encoding="utf-8-sig") as f:
+    with open(data_path, encoding="utf-8-sig") as f:
             reader = csv.reader(f)
 
             Insight.objects.all().delete()
 
             for row in reader:
                 _, created = Insight.objects.get_or_create(
-                    id=row[0],
-                    text=row[1],
-                    source=row[2],
-                    keywords=row[3],
-                    paraphrased=row[4],
-                    location=row[5],
+                    id=row[2],
+                    text=row[0],
+                    source=row[5],
+                    paraphrased=row[1],
+                    location=''
                     )
+                print(row[2])
                 # creates a tuple of the new object or
                 # current object and a boolean
                 # of if it was created
